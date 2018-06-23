@@ -2,8 +2,8 @@
 import axios from 'axios';
 import Querystring from 'querystring';
 
-var CLIENT_ID = "44ZjkxFgtKsGTcrRzTY5xb7d3MhrVuuvtPLrV0vN";
-var CLIENT_SECRET = "PyQTNe7VDtDMtaxmw83XDubbwNRPz6MBXvPXsZlhsQDRc7OjQPRwoZg17rAO1KC7cCSqUH43NInoEswzX3r7rIbmvDFaOOwn9DNpwPeqijcBRT2ZVIuQU28c0hfTt8w8";
+var CLIENT_ID = "hQUgi7HLSqcoBFVtCG7JalESkid1oVShjtWZLYDq";
+var CLIENT_SECRET = "FHAqnCFpGtLO27e7uwVaiVThlbmS1Ue2BpL1x5fZlMX3sMMy2qVWHZyfT2AXu8V1KGSipqeGxy0cWq4PgtbWwV1eY53Qu0xA7HjKPvSoyas0eXYe3qBPysz2aapXrdMl";
 
 var TOKEN_URL_BASE = "http://localhost:8000/";
 

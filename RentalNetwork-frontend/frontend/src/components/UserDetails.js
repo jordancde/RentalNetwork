@@ -12,7 +12,8 @@ export default class UserDetails extends React.Component{
           email:"",
           first_name:"",
           last_name:"",
-          date_joined:""
+          date_joined:"",
+          user_type:""
         },
         loggedIn:true
       };
@@ -47,6 +48,8 @@ export default class UserDetails extends React.Component{
             <label>Last Name: <span>{this.state.userdetails.last_name}</span></label>
             <hr className="divider"/>
             <label>Date Joined: <span>{this.state.userdetails.date_joined}</span></label>
+            <hr className="divider"/>
+            <label>User Type: <span>{this.state.userdetails.user_type}</span></label>
             <button onClick={this.handleLogout} className="logout-button">Logout</button>
           </div>
         </div>

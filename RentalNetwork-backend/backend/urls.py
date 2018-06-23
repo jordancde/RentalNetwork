@@ -4,7 +4,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 from django.urls import path, include
 from django.contrib import admin
 import oauth2_provider.views as oauth2_views
-from backend import views
+from rentalapp import views
 from backend import settings
 admin.autodiscover()
 

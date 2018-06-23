@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'corsheaders',
     'rest_framework',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'rentalapp'
 ]
 
 AUTHENTICATION_BACKENDS = (

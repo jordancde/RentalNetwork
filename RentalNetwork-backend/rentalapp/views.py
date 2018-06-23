@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
-from backend.serializers import UserSerializer, GroupSerializer
+from rentalapp.serializers import UserSerializer, GroupSerializer, RentalUserSerializer
+from rentalapp.models import RentalUser
 
 from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope, TokenHasScope, IsAuthenticatedOrTokenHasScope
 from oauth2_provider.views.generic import ScopedProtectedResourceView, ProtectedResourceView
@@ -43,6 +44,9 @@ class GroupList(generics.ListAPIView):
 @api_view(['GET'])
 def UserDetail(request):
     if request.method == 'GET':
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data)
+        user = request.user
+        userdata = UserSerializer(user).data
+        rentalserializer = RentalUserSerializer(RentalUser.objects.get(pk=user.username))
+        userdata["user_type"] = rentalserializer.data["user_type"]
+        return Response(userdata)
 
