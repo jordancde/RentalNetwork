@@ -4,7 +4,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 from django.urls import path, include
 from django.contrib import admin
 import oauth2_provider.views as oauth2_views
-from rentalapp import views
+from rental import views
 from backend import settings
 admin.autodiscover()
 
@@ -39,6 +39,7 @@ urlpatterns = [
     url(r'^api/token/', obtain_auth_token, name='api-token'),
     url(r"^admin/", admin.site.urls),
     url(r"^userdetail/", views.UserDetail),
+    url(r"^events/", views.Events),
     #url(r'^asset/', views.AssetDetail),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 ]
