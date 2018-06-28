@@ -18,17 +18,17 @@ class GroupSerializer(serializers.ModelSerializer):
 class ListingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Listing
-        fields = ('name', 'location','description','events','landlord')
+        fields = ('name', 'location','description','events','landlord','address')
 
 class RenterEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ('start', 'end')
+        fields = ('start', 'end','address')
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ('start', 'end','landlord','renter')
+        fields = ('start', 'end','landlord','renter','units')
 
 class RenterSerializer(serializers.ModelSerializer):
     class Meta:

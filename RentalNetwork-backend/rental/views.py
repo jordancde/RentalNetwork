@@ -24,12 +24,14 @@ class GroupViewSet(viewsets.ModelViewSet):
 
 # Create the API views
 class UserList(generics.ListCreateAPIView):
-    permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
+    permission_classes = [permissions.IsAuthenticated, TokenHasScope]
+    required_scopes = ['user']
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 class UserDetails(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
+    required_scopes = ['user']
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -39,17 +41,17 @@ class GroupList(generics.ListAPIView):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
+class EventDetails(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated, TokenHasScope]
+    required_scopes = ['user']
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
 
-
-@protected_resource(scopes=['user'])
-@api_view(['GET'])
-def UserDetail(request):
-    if request.method == 'GET':
-        user = request.user
-        userdata = UserSerializer(user).data
-        #rentalserializer = RentalUserSerializer(RentalUser.objects.get(pk=user.username))
-        #userdata["user_type"] = rentalserializer.data["user_type"]
-        return Response(userdata)
+class ListingDetails(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated, TokenHasScope]
+    required_scopes = ['user']
+    queryset = Listing.objects.all()
+    serializer_class = ListingSerializer
 
 @protected_resource(scopes=['user'])
 @api_view(['GET','POST'])
@@ -89,6 +91,7 @@ def Events(request):
             end=data.get("end"),
             listing=listing,
             landlord=landlord,
+            units=data.get("units")
         )
         
         listing.events+=","+str(event.id)
@@ -96,7 +99,12 @@ def Events(request):
 
         return Response("Success")
 
-        
+
+
+@protected_resource(scopes=['user'])
+@api_view(['Post'])
+def FindListingsView(request): 
+    pass
 
 
 

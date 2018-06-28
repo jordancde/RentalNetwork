@@ -38,8 +38,14 @@ urlpatterns = [
     path('groups/', views.GroupList.as_view()),
     url(r'^api/token/', obtain_auth_token, name='api-token'),
     url(r"^admin/", admin.site.urls),
-    url(r"^userdetail/", views.UserDetail),
-    url(r"^events/", views.Events),
-    #url(r'^asset/', views.AssetDetail),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+
+    url(r"^events/$", views.Events),
+    url(r"^events/<pk>", views.EventDetails.as_view()),
+
+    url(r"^nearbylistings/$", views.FindListingsView),
+    url(r"^listings/<pk>", views.ListingDetails.as_view()),
+    
+    #url(r'^asset/', views.AssetDetail),
+    
 ]

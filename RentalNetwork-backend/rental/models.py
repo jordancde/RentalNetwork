@@ -9,6 +9,8 @@ class Event(models.Model):
     start = models.DateTimeField(auto_now=False, auto_now_add=False)
     end = models.DateTimeField(auto_now=False, auto_now_add=False)
 
+    units = models.IntegerField(default=0)
+
     listing = models.ForeignKey(
         'Listing',
         on_delete=models.CASCADE,
@@ -30,7 +32,7 @@ class Listing(models.Model):
     location = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     #active = models.BooleanField()
-
+    address = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
     events = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
     landlord = models.ForeignKey(
         'Landlord',
@@ -44,6 +46,7 @@ class Renter(models.Model):
         on_delete=models.CASCADE,
         primary_key=True,
     )
+    address = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
     events = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
 
 class Landlord(models.Model):
