@@ -18,7 +18,7 @@ class GroupSerializer(serializers.ModelSerializer):
 class ListingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Listing
-        fields = ('name', 'location','description','events','landlord','address')
+        fields = ('name','description','events','landlord','address')
 
 class RenterEventSerializer(serializers.ModelSerializer):
     class Meta:

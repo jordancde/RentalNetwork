@@ -27,12 +27,10 @@ class Event(models.Model):
     )
 
 class Listing(models.Model):
-    id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=255)
-    location = models.CharField(max_length=255)
+    address = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     #active = models.BooleanField()
-    address = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
     events = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
     landlord = models.ForeignKey(
         'Landlord',

@@ -43,7 +43,7 @@ urlpatterns = [
     url(r"^events/$", views.Events),
     url(r"^events/<pk>", views.EventDetails.as_view()),
 
-    url(r"^nearbylistings/$", views.FindListingsView),
+    url(r"^listings/$", views.ListingsView),
     url(r"^listings/<pk>", views.ListingDetails.as_view()),
     
     #url(r'^asset/', views.AssetDetail),
