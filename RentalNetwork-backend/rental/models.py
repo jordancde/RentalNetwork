@@ -25,6 +25,7 @@ class Event(models.Model):
         blank=True,
         null=True
     )
+    requests = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
 
 class Listing(models.Model):
     name = models.CharField(max_length=255)
@@ -37,7 +38,6 @@ class Listing(models.Model):
         on_delete=models.CASCADE,
     )
 
-
 class Renter(models.Model):
     user = models.OneToOneField(
         User,
@@ -46,6 +46,7 @@ class Renter(models.Model):
     )
     address = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
     events = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
+    requests = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
 
 class Landlord(models.Model):
     user = models.OneToOneField(
@@ -54,3 +55,17 @@ class Landlord(models.Model):
         primary_key=True,
     )
     listings = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
+
+class Request(models.Model):
+    date = models.DateTimeField(auto_now=True)
+
+    renter = models.ForeignKey(
+        'Renter',
+        on_delete=models.CASCADE,
+    )
+    event = models.ForeignKey(
+        'Event',
+        on_delete=models.CASCADE,
+    )
+
+    accepted = models.BooleanField(default=False)

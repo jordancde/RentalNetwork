@@ -45,6 +45,11 @@ urlpatterns = [
 
     url(r"^listings/$", views.ListingsView),
     url(r"^listings/<pk>", views.ListingDetails.as_view()),
+
+    url(r"^requests/$", views.Requests),
+    url(r"^requests/open", views.OpenRequests),
+    url(r"^requests/accepted", views.AcceptedRequests),
+    url(r"^requests/<pk>", views.RequestDetails.as_view()),
     
     #url(r'^asset/', views.AssetDetail),
     

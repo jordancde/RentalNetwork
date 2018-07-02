@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User, Group
-from rental.models import Renter, Landlord, Event, Listing
+from rental.models import Renter, Landlord, Event, Listing, Request
 from rest_framework import serializers
 from oauth2_provider.models import AccessToken
 
@@ -14,21 +14,15 @@ class GroupSerializer(serializers.ModelSerializer):
         model = Group
         fields = ("name")
 
-
 class ListingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Listing
-        fields = ('name','description','events','landlord','address')
-
-class RenterEventSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Event
-        fields = ('start', 'end','address')
+        fields = ('id','name','description','events','landlord','address')
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ('start', 'end','landlord','renter','units')
+        fields = ('id','start', 'end','landlord','renter','units')
 
 class RenterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -39,3 +33,8 @@ class LandlordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Landlord
         fields = ('user', 'listings')
+
+class RequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Request
+        fields = ('id','date', 'renter','event','accepted')

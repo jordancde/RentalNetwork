@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 
-from rental.serializers import UserSerializer, GroupSerializer,ListingSerializer, EventSerializer
-from rental.models import Landlord, Event, Listing,Renter
+from rental.serializers import UserSerializer, GroupSerializer,ListingSerializer, EventSerializer, RequestSerializer
+from rental.models import Landlord, Event, Listing,Renter,Request
 
 from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope, TokenHasScope, IsAuthenticatedOrTokenHasScope
 from oauth2_provider.views.generic import ScopedProtectedResourceView, ProtectedResourceView
@@ -14,7 +14,6 @@ from rest_framework.response import Response
 from rest_framework import viewsets, generics, permissions
 from rest_framework import serializers
 from rental import maps
-
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
@@ -54,6 +53,12 @@ class ListingDetails(generics.RetrieveAPIView):
     required_scopes = ['user']
     queryset = Listing.objects.all()
     serializer_class = ListingSerializer
+
+class RequestDetails(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated, TokenHasScope]
+    required_scopes = ['user']
+    queryset = Request.objects.all()
+    serializer_class = RequestSerializer
 
 @protected_resource(scopes=['user'])
 @api_view(['GET','POST'])
@@ -122,10 +127,196 @@ def Events(request):
         except:
             return Response("Invalid parameters",status=status.HTTP_400_BAD_REQUEST)
         
+        if(not listing.events):
+            listing.events = ""
         listing.events+=","+str(event.id)
         listing.save()
 
         return Response(EventSerializer(event).data)
+
+
+@protected_resource(scopes=['user'])
+@api_view(['GET'])
+def OpenRequests(request):
+    user = request.user
+    if request.method == 'GET':
+        if(get_user_type(user) is not Landlord):
+            return Response("Not a Landlord",status=status.HTTP_400_BAD_REQUEST)
+        
+        landlord = Landlord.objects.get(user=user.id)
+        listings = landlord.listings.split(',')
+        if(not listings): return Response("No Listings")
+
+        requests=[]
+        for listing in listings:
+            l = Listing.objects.get(pk=listing)
+            events = l.events.split(',')
+            if not events: continue
+            for event in events:
+                if not event: continue
+                e = Event.objects.get(pk=event)
+                if not e.requests: continue
+                reqs = e.requests.split(',')
+                for req_id in reqs:
+                    if(not req_id): continue
+                    req = Request.objects.get(pk=req_id)
+
+                    if(not req.accepted):
+                        requests.append(RequestSerializer(req).data)
+
+        return Response(requests)
+@protected_resource(scopes=['user'])
+@api_view(['GET'])
+def AcceptedRequests(request):
+    user = request.user
+    if request.method == 'GET':
+        if(get_user_type(user) is not Landlord):
+            return Response("Not a Landlord",status=status.HTTP_400_BAD_REQUEST)
+        
+        landlord = Landlord.objects.get(user=user.id)
+        listings = landlord.listings.split(',')
+        if(not listings): return Response("No Listings")
+
+        requests=[]
+        for listing in listings:
+            l = Listing.objects.get(pk=listing)
+            events = l.events.split(',')
+            if not events: continue
+            for event in events:
+                if not event: continue
+                e = Event.objects.get(pk=event)
+                if not e.requests: continue
+                reqs = e.requests.split(',')
+                for req_id in reqs:
+                    if(not req_id): continue
+                    req = Request.objects.get(pk=req_id)
+
+                    if(req.accepted):
+                        requests.append(RequestSerializer(req).data)
+
+        return Response(requests)
+
+
+@protected_resource(scopes=['user'])
+@api_view(['GET','POST'])
+def Requests(request):
+    if request.method == 'GET':
+        user = request.user
+
+        if(get_user_type(user) is Landlord):
+
+            landlord = Landlord.objects.get(user=user.id)
+            listings = landlord.listings.split(',')
+            if(not listings): return Response("No Listings")
+
+            response = []
+            for listing in listings:
+                l = Listing.objects.get(pk=listing)
+                events = l.events.split(',')
+                if not events: continue
+                for event in events:
+                    if not event: continue
+                    e = Event.objects.get(pk=event)
+                    if not e.requests: continue
+                    requests = e.requests.split(',')
+                    for request in requests:
+                        if(not request): continue
+                        r = Request.objects.get(pk=request)
+                        response.append(RequestSerializer(r).data)
+    
+            return Response(response)
+        
+        elif(get_user_type(user) is Renter):
+
+            renter = Renter.objects.get(user=user.id)
+            if(not renter.requests):
+                return Response([])
+
+            request_ids = renter.requests.split(',')
+            
+            requests = []
+            for id in request_ids:
+                if(not id): continue
+                requests.append(RequestSerializer(Request.objects.get(pk=id)).data)
+
+            return Response(requests)
+
+        else:
+            return Response("Not a landlord/renter",status=status.HTTP_403_FORBIDDEN)
+
+    if request.method == 'POST':
+        data = request.data
+        user = request.user
+
+        if(get_user_type(user) is Landlord):
+            try:
+                request = Request.objects.get(pk=data["requestID"])
+            except:
+                return Response("Invalid Request ID",status=status.HTTP_400_BAD_REQUEST)
+
+            event = request.event
+            current_landlord = Landlord.objects.get(user = user)
+
+            if(event.landlord.user.id is not current_landlord.user.id):
+                return Response("Not your listing",status=status.HTTP_400_BAD_REQUEST)
+            
+            accepted = data["accepted"]
+            if(accepted=="true" or accepted=="True"):
+                accepted = True
+            elif(accepted=="false" or accepted=="False"):   
+                accepted = False
+            else:
+                return Response("Invalid accepted status",status=status.HTTP_400_BAD_REQUEST)
+
+            if(accepted):
+                if(request.accepted):
+                    return Response("Already Accepted",status=status.HTTP_400_BAD_REQUEST)
+                
+                if(event_full(request.event)):
+                    return Response("Event Full",status=status.HTTP_400_BAD_REQUEST)
+
+                request.accepted = True
+                request.save()
+
+            else:
+                if(not request.accepted):
+                    return Response("Already Not Accepted",status=status.HTTP_400_BAD_REQUEST)
+
+                request.accepted = False
+                request.save()
+
+            return Response(RequestSerializer(request).data)
+
+        elif(get_user_type(user) is Renter):
+            renter = Renter.objects.get(pk=user.id)
+
+            try:
+                event = Event.objects.get(pk=data["eventID"])
+            except:
+                return Response("Invalid Event",status=status.HTTP_400_BAD_REQUEST)
+            
+            try:
+                request = Request.objects.create(
+                    renter=renter, 
+                    event=event,
+                )
+            except:
+                return Response("Invalid parameters",status=status.HTTP_400_BAD_REQUEST)
+            
+            if(not event.requests):
+                event.requests = ""
+            event.requests+=","+str(request.id)
+            event.save()
+            if(not renter.requests):
+                renter.requests = ""
+            renter.requests+=","+str(request.id)
+            renter.save()
+
+        else:
+            return Response("Not a landlord/renter",status=status.HTTP_403_FORBIDDEN)
+
+        return Response(RequestSerializer(request).data)
+
 
 @protected_resource(scopes=['user'])
 @api_view(['GET','POST'])
@@ -222,6 +413,17 @@ def get_user_type(user):
         return User
     else:
         return None
+
+def event_full(event):
+    requests = event.requests.split(',')
+    count = 0
+    for request_id in requests:
+        if(not request_id):continue
+        request = Request.objects.get(pk=request_id)
+        if(request.accepted):
+            count+=1
+    
+    return (count>=event.units)
 
 
 
