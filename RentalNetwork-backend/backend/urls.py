@@ -40,16 +40,22 @@ urlpatterns = [
     url(r"^admin/", admin.site.urls),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 
-    url(r"^events/$", views.Events),
-    url(r"^events/<pk>", views.EventDetails.as_view()),
+    url(r"^renters/$", views.RenterList,name="renter-list"),
+    url(r"^renters/(?P<pk>\d+)/$", views.RenterDetails,name="renter-detail"),
 
-    url(r"^listings/$", views.ListingsView),
-    url(r"^listings/<pk>", views.ListingDetails.as_view()),
+    url(r"^landlords/$", views.LandlordList,name="landlord-list"),
+    url(r"^landlords/(?P<pk>\d+)/$", views.LandlordDetails,name="landlord-detail"),
 
-    url(r"^requests/$", views.Requests),
-    url(r"^requests/open", views.OpenRequests),
-    url(r"^requests/accepted", views.AcceptedRequests),
-    url(r"^requests/<pk>", views.RequestDetails.as_view()),
+    url(r"^events/$", views.Events,name="event-list"),
+    url(r"^events/(?P<pk>\d+)/$", views.EventDetails.as_view(),name="event-detail"),
+
+    url(r"^listings/$", views.ListingsView,name="listing-list"),
+    url(r"^listings/(?P<pk>\d+)/$", views.ListingDetails.as_view(),name="listing-detail"),
+
+    url(r"^requests/$", views.Requests,name="request-list"),
+    url(r"^requests/open", views.OpenRequests,name="open-requests"),
+    url(r"^requests/accepted", views.AcceptedRequests,name="accepted-requests"),
+    url(r"^requests/(?P<pk>\d+)/$", views.RequestDetails.as_view(),name="request-details"),
     
     #url(r'^asset/', views.AssetDetail),
     

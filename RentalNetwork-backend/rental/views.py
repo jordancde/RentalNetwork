@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 
-from rental.serializers import UserSerializer, GroupSerializer,ListingSerializer, EventSerializer, RequestSerializer
+from rental.serializers import UserSerializer, GroupSerializer,ListingSerializer, EventSerializer, RequestSerializer, RenterSerializer, LandlordSerializer
 from rental.models import Landlord, Event, Listing,Renter,Request
 
 from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope, TokenHasScope, IsAuthenticatedOrTokenHasScope
@@ -59,6 +59,52 @@ class RequestDetails(generics.RetrieveAPIView):
     required_scopes = ['user']
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
+
+@protected_resource(scopes=['user'])
+@api_view(['GET','POST'])
+def LandlordList(request):
+    if request.method == 'GET':
+        landlords = Landlord.objects.all()
+        serializer = LandlordSerializer(landlords,many=True)
+        return Response(serializer.data)
+    if request.method == 'POST':
+        landlord = Landlord.objects.create(
+            user = User.objects.get(pk=request.data["user"])
+        )
+        return Response(LandlordSerializer(landlord).data,status=status.HTTP_201_CREATED)
+
+@protected_resource(scopes=['user'])
+@api_view(['GET','POST'])
+def LandlordDetails(request,*args,**kwargs):
+    if request.method == 'GET':
+        user = User.objects.get(pk=kwargs.get("pk"))
+        landlord = Landlord.objects.get(user=user)
+        serializer = LandlordSerializer(landlord)
+        return Response(serializer.data)
+
+@protected_resource(scopes=['user'])
+@api_view(['GET','POST'])
+def RenterDetails(request,*args,**kwargs):
+    if request.method == 'GET':
+        user = User.objects.get(pk=kwargs.get("pk"))
+        renter = Renter.objects.get(user=user)
+        serializer = RenterSerializer(renter)
+        return Response(serializer.data)
+
+
+@protected_resource(scopes=['user'])
+@api_view(['GET','POST'])
+def RenterList(request):
+    if request.method == 'GET':
+        renters = Renter.objects.all()
+        serializer = RenterSerializer(renters,many=True)
+        return Response(serializer.data)
+    if request.method == 'POST':
+        renter = Renter.objects.create(
+            user = User.objects.get(pk=request.data["user"])
+        )
+        return Response(RenterSerializer(renter).data,status=status.HTTP_201_CREATED)
+
 
 @protected_resource(scopes=['user'])
 @api_view(['GET','POST'])
@@ -378,6 +424,8 @@ def ListingsView(request):
                 address=data.get("address"),
                 landlord=landlord,
             )
+            landlord.listings+=","+listing.id
+            landlord.save()
         except:
             return Response("Invalid parameters",status=status.HTTP_400_BAD_REQUEST)
         
