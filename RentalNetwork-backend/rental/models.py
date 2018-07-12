@@ -32,7 +32,7 @@ class Listing(models.Model):
     address = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     #active = models.BooleanField()
-    events = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
+    events = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=False,default="")
     landlord = models.ForeignKey(
         'Landlord',
         on_delete=models.CASCADE,
@@ -44,7 +44,7 @@ class Renter(models.Model):
         on_delete=models.CASCADE,
         primary_key=True
     )
-    address = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
+    address = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=False,default="Toronto")
     events = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
     requests = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
 
@@ -54,7 +54,7 @@ class Landlord(models.Model):
         on_delete=models.CASCADE,
         primary_key=True
     )
-    listings = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=True)
+    listings = models.CharField(validators=[validate_comma_separated_integer_list],max_length=1000,null=False,default="")
 
 class Request(models.Model):
     date = models.DateTimeField(auto_now=True)

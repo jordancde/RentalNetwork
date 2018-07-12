@@ -55,7 +55,7 @@ urlpatterns = [
     url(r"^requests/$", views.Requests,name="request-list"),
     url(r"^requests/open", views.OpenRequests,name="open-requests"),
     url(r"^requests/accepted", views.AcceptedRequests,name="accepted-requests"),
-    url(r"^requests/(?P<pk>\d+)/$", views.RequestDetails.as_view(),name="request-details"),
+    url(r"^requests/(?P<pk>\d+)/$", views.RequestDetails.as_view(),name="request-detail"),
     
     #url(r'^asset/', views.AssetDetail),
     
